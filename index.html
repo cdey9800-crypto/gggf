@@ -59,7 +59,14 @@ padding:3px 8px;
 border-radius:6px;
 z-index:10;
 }
-#videoPoster{position:absolute;inset:0;width:100%;height:300px;object-fit:cover;border-radius:12px;z-index:5}#loadingOverlay{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,.2);color:#fff;z-index:6}#unmuteBtn{display:none;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:7}</style>
+
+#videoPoster{position:absolute;inset:0;width:100%;height:300px;object-fit:cover;border-radius:12px;z-index:5}
+#loadingOverlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.25);color:#fff;z-index:6}
+#loadingOverlay:before{content:'';width:38px;height:38px;border:4px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .9s linear infinite;margin-bottom:10px}
+#unmuteBtn{display:none;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);padding:10px 18px;border:none;border-radius:30px;background:rgba(0,0,0,.75);color:#fff;font-weight:bold;z-index:7}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+</style>
 
 </head>
 <body>
@@ -86,9 +93,12 @@ z-index:10;
 </div></div>
 
 <div class="image-box"><div class="part-badge">PART 1</div>
-<img id="videoPoster" src="https://snapplanets.org/wp-content/uploads/2026/06/6203911398597791798.jpg"><div id="loadingOverlay">Preparing Video...</div><video id="mainVideo" controls playsinline muted autoplay preload="metadata" poster="part1-thumbnail.jpg">
+<img id="videoPoster" src="https://snapplanets.org/wp-content/uploads/2026/06/6203911398597791798.jpg" alt="Thumbnail">
+<div id="loadingOverlay">Preparing Video...</div>
+<video id="mainVideo" controls playsinline muted autoplay preload="metadata" poster="part1-thumbnail.jpg">
 <source src="https://snapplanets.org/wp-content/uploads/2026/06/part1split-video.com_.mp4" type="video/mp4">
-</video><button id="unmuteBtn">🔊 Tap to Unmute</button>
+</video>
+<button id='unmuteBtn'>🔊 Tap to Unmute</button>
 
 <span class="prev" style="opacity:.4;cursor:default;pointer-events:none">PREV</span>
 <a class="next" href="/page2/">NEXT</a>
@@ -131,11 +141,28 @@ const video=document.getElementById('mainVideo');
 const poster=document.getElementById('videoPoster');
 const loader=document.getElementById('loadingOverlay');
 const btn=document.getElementById('unmuteBtn');
+
 video.muted=true;
 video.play().catch(()=>{});
-function ready(){if(poster){poster.style.display='none';}if(loader)loader.style.display='none';btn.style.display='block';}
-video.addEventListener('playing',ready,{once:true});
-video.addEventListener('timeupdate',()=>{if(video.currentTime>0.05)ready();},{once:true});
-btn.onclick=()=>{video.muted=false;btn.style.display='none';};
+
+function reveal(){
+  setTimeout(()=>{
+    if(loader) loader.style.display='none';
+    if(poster){
+      poster.style.transition='opacity .25s';
+      poster.style.opacity='0';
+      setTimeout(()=>poster.remove(),250);
+    }
+    btn.style.display='block';
+  },600);
+}
+
+video.addEventListener('playing',reveal,{once:true});
+video.addEventListener('timeupdate',()=>{if(video.currentTime>0.05)reveal();},{once:true});
+
+btn.onclick=()=>{
+ video.muted=false;
+ btn.style.display='none';
+};
 });
 </script>
